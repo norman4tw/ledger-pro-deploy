@@ -14,12 +14,8 @@ COPY backend/ /app/backend/
 WORKDIR /app/backend
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy nginx config to sites-available
-COPY nginx/nginx.conf /etc/nginx/sites-available/default
-
-# Enable the site by linking to sites-enabled
-RUN rm -f /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+# Copy nginx config - overwrite the main nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 ENV FLASK_ENV=production
 EXPOSE 8080
