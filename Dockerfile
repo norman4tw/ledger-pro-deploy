@@ -6,7 +6,7 @@ WORKDIR /app
 # Install nginx
 RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
-# Copy frontend to /var/www/html (nginx default root)
+# Copy frontend to /var/www/html
 COPY frontend/ /var/www/html/
 
 # Copy backend
@@ -14,8 +14,12 @@ COPY backend/ /app/backend/
 WORKDIR /app/backend
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy nginx config
+# Copy nginx config to sites-available
 COPY nginx/nginx.conf /etc/nginx/sites-available/default
+
+# Enable the site by linking to sites-enabled
+RUN rm -f /etc/nginx/sites-enabled/default && \
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 ENV FLASK_ENV=production
 EXPOSE 8080
