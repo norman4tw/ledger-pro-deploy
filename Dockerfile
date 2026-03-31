@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install nginx
 RUN apt-get update && apt-get install -y \
     nginx \
     && rm -rf /var/lib/apt/lists/*
@@ -11,9 +11,11 @@ RUN apt-get update && apt-get install -y \
 # Copy backend
 COPY backend/ ./backend/
 WORKDIR /app/backend
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy frontend build (already built, no need to rebuild)
+# Copy frontend build (already built)
 COPY frontend/ ./frontend/
 
 # Copy nginx config
@@ -26,6 +28,5 @@ ENV PYTHONUNBUFFERED=1
 # Expose port
 EXPOSE 8080
 
-# Start nginx and gunicorn
-CMD service nginx start && \
-    gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 run:app
+# Start nginx in foreground and gunicorn in background
+CMD ["sh", "-c", "nginx && gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 run:app"]
