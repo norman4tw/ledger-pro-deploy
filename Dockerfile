@@ -1,11 +1,4 @@
-# Build stage for frontend
-FROM node:18-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-COPY frontend/ ./
-RUN npm install && npm run build
-
-# Production stage
+# Frontend already built - just copy static files
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -20,8 +13,8 @@ COPY backend/ ./backend/
 WORKDIR /app/backend
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy frontend build
-COPY --from=frontend-builder /app/frontend/dist /app/frontend
+# Copy frontend build (already built, no need to rebuild)
+COPY frontend/ ./frontend/
 
 # Copy nginx config
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
